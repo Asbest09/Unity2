@@ -5,32 +5,41 @@ using UnityEngine;
 
 public class SpawnEnemy : MonoBehaviour
 {
-    [SerializeField] private List<Transform> _spawnPoints;
+    [SerializeField] private Transform[] _spawnPoints;
     [SerializeField] private GameObject _prefabEnemy;
     [SerializeField] private float _speed;
-
-    public List<GameObject> Enemies { get; private set; }
 
     private void Start()
     {
         StartCoroutine(CooldownSpawn());
-
-        Enemies = new List<GameObject>();
     }
 
     private IEnumerator CooldownSpawn()
     {
-        Spawn();
+        while (true)
+        {
+            Spawn();
 
-        Debug.Log("2 seconds");
+            yield return new WaitForSeconds(2);
+        }
+    }
 
-        yield return new WaitForSeconds(2);
+    private IEnumerator MovementEnemy(GameObject enemy)
+    {
+        while (true)
+        {
+            enemy.transform.Translate(Vector3.left * _speed * Time.deltaTime);
+
+            yield return null;
+        }
     }
 
     private void Spawn()
     {
-        Transform pointSpawn = _spawnPoints[Random.Range(0, _spawnPoints.Count)];
-        
-        GameObject enemy = Instantiate(_prefabEnemy, Vector3.zero, Random.rotation, pointSpawn);
+        Transform pointSpawn = _spawnPoints[Random.Range(0, _spawnPoints.Length)];
+
+        GameObject enemy = Instantiate(_prefabEnemy, pointSpawn.position, Quaternion.Euler(0, 0, Random.Range(1,4) * 90), pointSpawn);
+
+        StartCoroutine(MovementEnemy(enemy));
     }
 }
